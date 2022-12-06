@@ -33,9 +33,6 @@ func (c crate) toString() string {
 
 func makeCrates(lines []string) []crate {
 	crates := make([]crate, (len(lines[0])/4)+1)
-	println(lines[0])
-	println((len(lines[0]) / 4) + 1)
-	println(len(crates))
 	for i := 0; i < len(crates); i++ {
 		crates[i] = make(crate, 0)
 	}
@@ -72,6 +69,23 @@ func parseMove(line string) *move {
 	}
 }
 
+func (m move) toString() string {
+	return fmt.Sprintf("move %d from %d to %d", m.number, m.from, m.to)
+}
+
+func (c crane) topLetters() string {
+	output := make([]rune, len(c.crates))
+	for _, cra := range c.crates {
+		if len(cra) == 0 {
+			output = append(output, '$')
+		} else {
+			output = append(output, cra[0])
+		}
+	}
+
+	return string(output)
+}
+
 func (c *crane) evalMove(m move) {
 	for i := 0; i < m.number; i++ {
 		fromCrate := c.crates[m.from-1]
@@ -88,11 +102,30 @@ func (c *crane) evalMove(m move) {
 	}
 }
 
+func (c *crane) evalMove2(m move) {
+	fromCrate := c.crates[m.from-1]
+	toCrate := c.crates[m.to-1]
+	numToMove := m.number
+	if numToMove >= len(fromCrate) {
+		numToMove = len(fromCrate)
+	}
+
+	elems := fromCrate[0:numToMove:numToMove]
+	fromCrate = fromCrate[numToMove:]
+	toCrate = append(elems, toCrate...)
+
+	c.crates[m.from-1] = fromCrate
+	c.crates[m.to-1] = toCrate
+}
+
 func main() {
 	lines := shared.ReadLines("day05/input.txt")
 	st := parseCrates
 	crateLines := make([]string, 0)
 	cr := &crane{
+		crates: make([]crate, 0),
+	}
+	cr2 := &crane{
 		crates: make([]crate, 0),
 	}
 	for _, l := range lines {
@@ -102,20 +135,18 @@ func main() {
 			if l != "" {
 				m := parseMove(l)
 				cr.evalMove(*m)
+				cr2.evalMove2(*m)
 			}
 		}
 
 		// got to the end of the parse phase
-		if l == "" {
+		if l == "" && st == parseCrates {
 			cr.crates = makeCrates(crateLines[:len(crateLines)-1])
+			cr2.crates = makeCrates(crateLines[:len(crateLines)-1])
 			st = parseMoves
 		}
 	}
 
-	output := make([]rune, len(cr.crates))
-	for _, cra := range cr.crates {
-		output = append(output, cra[0])
-	}
-
-	println(string(output))
+	println(cr.topLetters())
+	println(cr2.topLetters())
 }
