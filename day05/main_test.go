@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestMakeCrates(t *testing.T) {
 	input := []string{
@@ -21,6 +24,14 @@ func TestMakeCrates(t *testing.T) {
 	}
 
 	if string(crates[2]) != "P" {
+		t.Fail()
+	}
+}
+
+func TestParseMove(t *testing.T) {
+	m := parseMove("move 2 from 3 to 5")
+	if m.number != 2 || m.from != 3 || m.to != 5 {
+		fmt.Printf("%q\n", m)
 		t.Fail()
 	}
 }
