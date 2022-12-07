@@ -22,3 +22,13 @@ func ReadLines(path string) (out []string) {
 
 	return out
 }
+
+func ReadContinuous(path string) (out []rune) {
+	lines := ReadLines(path)
+	for _, l := range lines {
+		out = append(out, []rune(l)...)
+		out = append(out, '\n')
+	}
+
+	return out
+}
